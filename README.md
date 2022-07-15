@@ -2,6 +2,22 @@
 
 This is a python code that calculates FID score between different styled datasets, to evaluate a GAN's performance, implemented by [hongjumeow](https://github.com/hongjumeow).
 
+
+### How to Run code
+
+Before running the code, install requirements.
+
+```
+$ pip3 install -r requirements.txt
+```
+
+Then put datasets' paths as arguments and run the code.
+
+```
+$ python3 fid.py --dataset1 [path_to_dataset1] --dataset2 [path_to_dataset2]
+```
+
+
 ### Inception v3 model
 
 FID score is based on a pretrained Object Detection model, Inception v3.
