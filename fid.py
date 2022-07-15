@@ -28,6 +28,7 @@ def preprocess_before_eval(base_dir, img):
 def compute_fid(dataset1, dataset2):
     model = torch.hub.load('pytorch/vision:v0.10.0', 'inception_v3', pretrained=True)
     model.eval()
+    print("Pretrained Inception V3 model is loaded.")
 
     file1 = os.listdir(dataset1)
     file2 = os.listdir(dataset2)
@@ -39,20 +40,19 @@ def compute_fid(dataset1, dataset2):
     activations1 = np.zeros((num_images, 1000), dtype=np.float32)
     activations2 = np.zeros((num_images, 1000), dtype=np.float32)
 
+    print("Calculating Activations for each images...")
     for i in tqdm(range(num_images)):
         input1 = preprocess_before_eval(dataset1, file1[i])
         input2 = preprocess_before_eval(dataset2, file2[i])
+
         with torch.no_grad():
             act1 = model(input1)
             act2 = model(input2)
+
         activations1[i] = act1
         activations2[i] = act2
-    
-    # with torch.no_grad():
-    #     act1 = model(input1_batch)
-    #     act2 = model(input2_batch) # shape = [1, 1000] since 1000 classes in ImageNet
 
-    mu1, sigma1 = activations1[0].mean(axis=0), np.cov(activations1, rowvar=False) # img"s" from 2 datasets
+    mu1, sigma1 = activations1[0].mean(axis=0), np.cov(activations1, rowvar=False)
     mu2, sigma2 = activations2[0].mean(axis=0), np.cov(activations2, rowvar=False)
 
     ssdiff = np.sum((mu1 - mu2) ** 2.0)
@@ -61,10 +61,10 @@ def compute_fid(dataset1, dataset2):
     if np.iscomplexobj(covmean):
         covmean = covmean.real
     
-    fid = ssdiff + np.trace(sigma1 + sigma2 - 2.0 * covmean)
+    fid = ssdiff + np.trace(sigma1 + sigma2 - (2.0 * covmean))
     return fid
 
 if __name__=='__main__':
     opt = parser.parse_args()
     fid = compute_fid(opt.dataset1, opt.dataset2)
-    print(fid)
+    print(f"Calculated FID score: {fid}")
