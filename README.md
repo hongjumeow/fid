@@ -1,6 +1,6 @@
 # GAN's quantitative metric: Frechet Inception Distance, FID
 
-This is a python code that calculates FID score between different styled datasets, to evaluate a GAN's performance, implemented by hongjumeow.
+This is a python code that calculates FID score between different styled datasets, to evaluate a GAN's performance, implemented by [hongjumeow](https://github.com/hongjumeow).
 
 ### Inception v3 model
 
