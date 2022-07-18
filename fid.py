@@ -37,8 +37,8 @@ def compute_fid(images1, images2):
         activations2[i] = act2
 
     print("Calculating Mean and Variance.")
-    mu1, sigma1 = activations1[0].mean(axis=0), np.cov(activations1, rowvar=False)
-    mu2, sigma2 = activations2[0].mean(axis=0), np.cov(activations2, rowvar=False)
+    mu1, sigma1 = activations1.mean(axis=0), np.cov(activations1, rowvar=False)
+    mu2, sigma2 = activations2.mean(axis=0), np.cov(activations2, rowvar=False)
 
     ssdiff = np.sum((mu1 - mu2) ** 2.0)
     covmean = sqrtm(sigma1.dot(sigma2))
