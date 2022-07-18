@@ -15,7 +15,7 @@ parser.add_argument('--dataset2', type=str)
 def compute_fid(images1, images2):
     model = torch.hub.load('pytorch/vision:v0.10.0', 'inception_v3', pretrained=True)
     model.eval()
-    print("Pretrained Inception V3 model is loaded.")
+    print("\nPretrained Inception V3 model is loaded.\n")
 
     num_images = len(images1)
     if len(images1) > len(images2):
@@ -36,7 +36,6 @@ def compute_fid(images1, images2):
         activations1[i] = act1
         activations2[i] = act2
 
-    print("Calculating Mean and Variance.")
     mu1, sigma1 = activations1.mean(axis=0), np.cov(activations1, rowvar=False)
     mu2, sigma2 = activations2.mean(axis=0), np.cov(activations2, rowvar=False)
 
@@ -56,4 +55,4 @@ if __name__=='__main__':
     images2 = walk_dirs_and_append(opt.dataset2)
 
     fid = compute_fid(images1, images2)
-    print(f"Calculated FID score: {fid}")
+    print(f"\nCalculated FID is {fid}\n")
