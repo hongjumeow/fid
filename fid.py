@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import math
 from scipy.linalg import sqrtm
 import argparse
 import os
@@ -45,8 +46,10 @@ def compute_fid(images1, images2):
     if np.iscomplexobj(covmean):
         covmean = covmean.real
     
-    fid = ssdiff + np.trace(sigma1 + sigma2 - (2.0 * covmean))
-    return fid
+    fid_squared = abs(ssdiff + np.trace(sigma1 + sigma2 - (2.0 * covmean)))
+    fid = math.sqrt(fid_squared)
+    
+    return round(fid, 2)
 
 if __name__=='__main__':
     opt = parser.parse_args()
