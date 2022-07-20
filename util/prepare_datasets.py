@@ -1,7 +1,7 @@
 import os
 
 def is_image_file(name):
-    if name.endswith('.jpg' or '.png'):
+    if name.endswith('.jpg') or name.endswith('.png'):
         return True
     else:
         return False
