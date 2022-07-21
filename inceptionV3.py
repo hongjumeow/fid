@@ -15,11 +15,7 @@ class InceptionV3():
     def forward(self, x):
         return self.model(x)
     
-    def get_features(self, images1, images2):
-        num_images = len(images1)
-        if len(images1) > len(images2):
-            num_images = len(images2)
-        
+    def get_features(self, images1, images2, num_images):
         activations1 = np.zeros((num_images, 1000), dtype=np.float32)
         activations2 = np.zeros((num_images, 1000), dtype=np.float32)
 

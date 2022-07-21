@@ -9,17 +9,25 @@ from inceptionV3 import InceptionV3
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset1', type=str)
 parser.add_argument('--dataset2', type=str)
+parser.add_argument('--num_images', type=int, default=None)
 
 class FID():
-    def __init__(self, images1, images2):
+    def __init__(self, images1, images2, num_images):
         self.images1 = images1
         self.images2 = images2
+
+        if num_images != None:
+            self.num_images = num_images
+        else:
+            self.num_images = len(images1)
+            if len(images1) > len(images2):
+                self.num_images = len(images2)
 
         self.model = InceptionV3()
         self.compute()
     
     def compute(self):
-        activations1, activations2 = self.model.get_features(self.images1, self.images2)
+        activations1, activations2 = self.model.get_features(self.images1, self.images2, self.num_images)
 
         mu1, sigma1 = activations1.mean(axis=0), np.cov(activations1, rowvar=False)
         mu2, sigma2 = activations2.mean(axis=0), np.cov(activations2, rowvar=False)
