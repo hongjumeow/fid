@@ -1,55 +1,42 @@
-import torch
 import numpy as np
-import math
 from scipy.linalg import sqrtm
+import math
 import argparse
-import os
-from tqdm import tqdm
 
 from util.prepare_datasets import *
-from util.preprocess import *
+from inceptionV3 import InceptionV3
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset1', type=str)
 parser.add_argument('--dataset2', type=str)
 
-def compute_fid(images1, images2):
-    model = torch.hub.load('pytorch/vision:v0.10.0', 'inception_v3', pretrained=True)
-    model.eval()
-    print("\nPretrained Inception V3 model is loaded.\n")
+class FID():
+    def __init__(self, images1, images2):
+        self.images1 = images1
+        self.images2 = images2
 
-    num_images = len(images1)
-    if len(images1) > len(images2):
-        num_images = len(images2)
+        self.model = InceptionV3()
+        self.compute()
     
-    activations1 = np.zeros((num_images, 1000), dtype=np.float32)
-    activations2 = np.zeros((num_images, 1000), dtype=np.float32)
+    def compute(self):
+        activations1, activations2 = self.model.get_features(self.images1, self.images2)
 
-    print("Getting Activations through InceptionV3 for each images...")
-    for i in tqdm(range(num_images)):
-        input1 = preprocess_for_Inceptionv3(images1[i])
-        input2 = preprocess_for_Inceptionv3(images2[i])
+        mu1, sigma1 = activations1.mean(axis=0), np.cov(activations1, rowvar=False)
+        mu2, sigma2 = activations2.mean(axis=0), np.cov(activations2, rowvar=False)
 
-        with torch.no_grad():
-            act1 = model(input1)
-            act2 = model(input2)
+        ssdiff = np.sum((mu1 - mu2) ** 2.0)
+        covmean = sqrtm(sigma1.dot(sigma2))
 
-        activations1[i] = act1
-        activations2[i] = act2
+        if np.iscomplexobj(covmean):
+            covmean = covmean.real
+        
+        fid_squared = abs(ssdiff + np.trace(sigma1 + sigma2 - (2.0 * covmean)))
+        fid = math.sqrt(fid_squared)
 
-    mu1, sigma1 = activations1.mean(axis=0), np.cov(activations1, rowvar=False)
-    mu2, sigma2 = activations2.mean(axis=0), np.cov(activations2, rowvar=False)
+        self.score = round(fid, 2)
 
-    ssdiff = np.sum((mu1 - mu2) ** 2.0)
-    covmean = sqrtm(sigma1.dot(sigma2))
-
-    if np.iscomplexobj(covmean):
-        covmean = covmean.real
-    
-    fid_squared = abs(ssdiff + np.trace(sigma1 + sigma2 - (2.0 * covmean)))
-    fid = math.sqrt(fid_squared)
-    
-    return round(fid, 2)
+    def get_score(self):
+        return self.score
 
 if __name__=='__main__':
     opt = parser.parse_args()
@@ -57,5 +44,5 @@ if __name__=='__main__':
     images1 = walk_dirs_and_append(opt.dataset1)
     images2 = walk_dirs_and_append(opt.dataset2)
 
-    fid = compute_fid(images1, images2)
-    print(f"\nCalculated FID is {fid}\n")
+    fid = FID(images1, images2)
+    print(f"\nCalculated FID is {fid.get_score()}\n")
