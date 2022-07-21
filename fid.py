@@ -52,5 +52,5 @@ if __name__=='__main__':
     images1 = walk_dirs_and_append(opt.dataset1)
     images2 = walk_dirs_and_append(opt.dataset2)
 
-    fid = FID(images1, images2)
+    fid = FID(images1, images2, opt.num_images)
     print(f"\nCalculated FID is {fid.get_score()}\n")
